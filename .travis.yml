@@ -1,0 +1,27 @@
+language: cpp
+sudo: required
+git:
+  submodules: false
+  depth: 1
+branches:
+  only:
+  - single-proj
+os: linux
+dist: trusty
+compiler: clang
+
+before_install:
+- chmod +x ./scripts/install-dependencies.sh;
+
+install:
+- if [ $TRAVIS_OS_NAME == linux ]; then 
+    scripts/install-dependencies.sh;
+  fi
+
+before_script:
+- chmod +x ./scripts/run-tests.sh;
+
+script:
+- if [ $TRAVIS_OS_NAME == linux ]; then
+    scripts/run-tests.sh; 
+  fi
