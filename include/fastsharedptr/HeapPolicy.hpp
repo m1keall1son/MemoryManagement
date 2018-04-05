@@ -37,7 +37,7 @@ public:
 	}
 	
 	// Delete memory
-	void deallocate(pointer ptr, size_type count )
+	void deallocate(pointer ptr, size_type count)
 	{
 		::operator delete(ptr);
 	}

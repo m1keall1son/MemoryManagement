@@ -6,9 +6,11 @@
 #include "ObjectTraits.hpp"
 
 #define POOL_INDEX_BITS 16
+
 #define SLOT_SERIAL_BITS 16
-#define SLOT_ALIVE_BITS 1
 #define SLOT_INDEX_BITS 31
+#define SLOT_MOVED_BITS 1
+#define SLOT_ALIVE_BITS 1
 
 struct SparseSlotIndex {
 	uint64_t : 16; //unused
