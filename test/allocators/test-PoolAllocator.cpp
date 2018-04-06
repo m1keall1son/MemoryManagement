@@ -10,9 +10,8 @@
 #include <random>
 #include <algorithm>
 #include "catch.hpp"
-#include <fastsharedptr/PoolAllocator.hpp>
-#include <fastsharedptr/Allocator.hpp>
-#include <fastsharedptr/BasicObjectTraits.hpp>
+#include "Allocator.hpp"
+#include "FreeStoreAllocator.hpp"
 
 class Object {
 public:
@@ -29,10 +28,8 @@ unsigned int randInt(unsigned int max) {
 }
 
 TEST_CASE("PoolAllocatorFixed","[allocator]"){
-
-    using FixedSizeObjectStorage = fixed_size<Object, 1000>;
-    using PoolAllocator = pool_allocator<Object, FixedSizeObjectStorage>;
-    using Alloc = Allocator<Object, PoolAllocator, basic_object_traits<Object>>;
+    
+    using Alloc = Allocator<Object, FreeStoreAllocator<Object, FixedSizeStorage,1000>, DefaultInitializer<Object>>;
     
     Alloc alloc;
     
@@ -131,10 +128,8 @@ TEST_CASE("PoolAllocatorFixed","[allocator]"){
 
 TEST_CASE("PoolAllocatorDynamic","[allocator]"){
     
-    using DynamicObjectStorage = dynamic_size<Object, 500>;
-    using PoolAllocator = pool_allocator<Object, DynamicObjectStorage>;
-    using Alloc = Allocator<Object, PoolAllocator, basic_object_traits<Object>>;
-    
+    using Alloc = Allocator<Object, FreeStoreAllocator<Object,BlockListStorage,1000>, DefaultInitializer<Object>>;
+
     Alloc alloc;
     
     auto obj1 = alloc.allocate();
@@ -234,10 +229,8 @@ TEST_CASE("PoolAllocatorDynamic","[allocator]"){
 
 TEST_CASE("FastSharedPtr","[allocator]"){
 
-    using FixedSizeObjectStorage = fixed_size<Object, 5000>;
-    using PoolAllocator = pool_allocator<Object, FixedSizeObjectStorage>;
-    using Alloc = Allocator<Object, PoolAllocator, basic_object_traits<Object>>;
-    
+    using Alloc = Allocator<Object, FreeStoreAllocator<Object,FixedSizeStorage,1000>, DefaultInitializer<Object>>;
+
     Alloc myAlloc;
 
     auto shared1 = std::shared_ptr<Object>( new Object, std::default_delete<Object>(), myAlloc );
@@ -246,7 +239,26 @@ TEST_CASE("FastSharedPtr","[allocator]"){
     auto shared4 = std::shared_ptr<Object>( new Object, std::default_delete<Object>(), myAlloc );
     auto shared5 = std::shared_ptr<Object>( new Object, std::default_delete<Object>(), myAlloc );
 
+    REQUIRE(shared1.get() != shared2.get());
     
+    {
+        auto cpy = shared2;
+        REQUIRE(shared2.get() == cpy.get());
+        REQUIRE(shared2.use_count() == 2);
+    }
+    
+    REQUIRE(shared2.use_count() == 1);
+    shared5.reset();
+    REQUIRE(shared5.get() == nullptr);
+    
+    auto weak = std::weak_ptr<Object>(shared1);
+    if(auto sp = weak.lock()){
+        sp->inc();
+    }
+    
+    REQUIRE(shared1->getCount() == 6);
+    shared1.reset();
+    REQUIRE(weak.expired());
     
 }
 

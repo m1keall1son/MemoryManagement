@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include "BasicObjectTraits.hpp"
+#include "DefaultInitializer.hpp"
 #include "AllocatorTraits.hpp"
-#include "HeapPolicy.hpp"
+#include "HeapAllocator.hpp"
 
 #define FORWARD_ALLOCATOR_TRAITS(C)                  \
 typedef typename C::value_type      value_type;      \
@@ -22,8 +22,8 @@ typedef typename C::size_type       size_type;       \
 typedef typename C::difference_type difference_type; \
 
 template<typename T,
-	typename PolicyT = heap_policy<T>,
-	typename TraitsT = basic_object_traits<T> >
+	typename PolicyT = HeapAllocator<T>,
+	typename TraitsT = DefaultInitializer<T> >
 class Allocator : public PolicyT, public TraitsT
 {
 public:
@@ -97,8 +97,8 @@ bool operator!=(Allocator<T, PolicyT, TraitsT> const& left,
 // Specialize for the heap policy
 template<typename T, typename TraitsT,
 typename U, typename TraitsU>
-bool operator==(Allocator<T, heap_policy<T>, TraitsT> const& left,
-				Allocator<U, heap_policy<U>, TraitsU> const& right)
+bool operator==(Allocator<T, HeapAllocator<T>, TraitsT> const& left,
+				Allocator<U, HeapAllocator<U>, TraitsU> const& right)
 {
 	return true;
 }
@@ -106,8 +106,8 @@ bool operator==(Allocator<T, heap_policy<T>, TraitsT> const& left,
 // Also implement inequality
 template<typename T, typename TraitsT,
 typename U, typename TraitsU>
-bool operator!=(Allocator<T, heap_policy<T>, TraitsT> const& left,
-				Allocator<U, heap_policy<U>, TraitsU> const& right)
+bool operator!=(Allocator<T, HeapAllocator<T>, TraitsT> const& left,
+				Allocator<U, HeapAllocator<U>, TraitsU> const& right)
 {
 	return !(left == right);
 }

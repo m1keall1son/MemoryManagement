@@ -8,9 +8,10 @@
 
 #pragma once
 #include "AllocatorTraits.hpp"
+#include "IAllocator.h"
 
 template<typename T>
-class heap_policy
+class HeapAllocator
 {
 public:
 	
@@ -19,15 +20,15 @@ public:
 	template<typename U>
 	struct rebind
 	{
-		typedef heap_policy<U> other;
+		typedef HeapAllocator<U> other;
 	};
 	
 	// Default Constructor
-	heap_policy(void) = default;
+	HeapAllocator(void) = default;
 	
 	// Copy Constructor
 	template<typename U>
-	heap_policy(heap_policy<U> const& other){}
+	HeapAllocator(HeapAllocator<U> const& other){}
 	
 	// Allocate memory
 	pointer allocate(size_type count, const_pointer hint = 0)
@@ -43,5 +44,7 @@ public:
 	}
 	
 	// Max number of objects that can be allocated in one call
-	size_type max_size(void) const {return max_allocations<T>::value;}
+	size_type max_size(void) const {return max_allocations<sizeof(T)>::value;}
+    
+    size_t capacity(){ return max_size(); }
 };

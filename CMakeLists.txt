@@ -44,13 +44,13 @@ enable_testing(true)
 #########################################################################################
 #create engine lib
 file(GLOB allocators_HEADERS
-	${CMAKE_SOURCE_DIR}/include/fastsharedptr/*.h
-    ${CMAKE_SOURCE_DIR}/include/fastsharedptr/*.hpp
+	${CMAKE_SOURCE_DIR}/include/allocators/*.h
+    ${CMAKE_SOURCE_DIR}/include/allocators/*.hpp
 )
 add_library(allocators INTERFACE)
 target_sources(allocators INTERFACE ${allocators_HEADERS})
 SOURCE_GROUP_BY_FOLDER(allocators)
-target_include_directories(allocators INTERFACE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(allocators INTERFACE ${CMAKE_SOURCE_DIR}/include/allocators)
 #set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER allocators)
 
 #########################################################################################
@@ -59,7 +59,7 @@ target_include_directories(allocators INTERFACE ${CMAKE_SOURCE_DIR}/include)
 #createTest( util-math-test test/utilities/math )
 #createTest( util-time-test test/utilities/time )
 #createTest( util-threading-test test/utilities/threading )
-createTest(NAME test_allocators LOCATION tests SOURCE ${CMAKE_SOURCE_DIR}/test/fastsharedptr LIBS allocators catch)
+createTest(NAME test_allocators LOCATION tests SOURCE ${CMAKE_SOURCE_DIR}/test/allocators LIBS allocators catch)
 
 
 

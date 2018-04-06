@@ -8,12 +8,6 @@
 
 #pragma once
 
-template<typename T>
-struct max_allocations
-{
-	enum{value = static_cast<std::size_t>(-1) / sizeof(T)};
-};
-
 #define ALLOCATOR_TRAITS(T)                \
 typedef T                 type;            \
 typedef type              value_type;      \

@@ -9,7 +9,7 @@
 #pragma once
 
 template<typename T>
-class basic_object_traits
+class DefaultInitializer
 {
 public:
 	
@@ -18,15 +18,15 @@ public:
 	template<typename U>
 	struct rebind
 	{
-		typedef basic_object_traits<U> other;
+		typedef DefaultInitializer<U> other;
 	};
 	
 	// Constructor
-	basic_object_traits(void){}
+	DefaultInitializer(void){}
 	
 	// Copy Constructor
 	template<typename U>
-	basic_object_traits(basic_object_traits<U> const& other){}
+	DefaultInitializer(DefaultInitializer<U> const& other){}
 	
 	// Address of object
 	type*       address(type&       obj) const {return &obj;}
