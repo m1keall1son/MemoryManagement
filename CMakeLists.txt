@@ -26,11 +26,10 @@ message("-- App is set to ${APP_TARGET}.")
 
 #########################################################################################
 #setup testing
-set(CATCH_LIB catch)
-add_library(${CATCH_LIB} INTERFACE)
+add_library(catch INTERFACE)
 set(CATCH_DIR ${CMAKE_SOURCE_DIR}/deps/Catch2 CACHE INTERNAL "Path to Catch installation")
 set(CATCH_INCLUDE_DIR ${CATCH_DIR}/single_include CACHE INTERNAL "Path to include folder for Catch")
-target_include_directories(${CATCH_LIB} INTERFACE ${CATCH_INCLUDE_DIR})
+target_include_directories(catch INTERFACE ${CATCH_INCLUDE_DIR})
 #include automatic test discovery for ctest
 include(${CATCH_DIR}/contrib/Catch.cmake)
 #include convenience method for creating tests
@@ -44,31 +43,15 @@ enable_testing(true)
 
 #########################################################################################
 #create engine lib
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${APP_TARGET})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${APP_TARGET})
-
-file(GLOB ${MM_LIB}_HEADERS
+file(GLOB allocators_HEADERS
 	${CMAKE_SOURCE_DIR}/include/fastsharedptr/*.h
     ${CMAKE_SOURCE_DIR}/include/fastsharedptr/*.hpp
 )
-
-include_directories(
-	${CMAKE_SOURCE_DIR}/include
-)
-
-file(GLOB ${MM_LIB}_SRC
-    ${CMAKE_SOURCE_DIR}/src/fastsharedptr/*.cpp
-)
-
-add_library(${PROJECT_NAME} STATIC ${${MM_LIB}_SRC} ${${MM_LIB}_HEADERS} )
-SOURCE_GROUP_BY_FOLDER(${PROJECT_NAME})
-target_include_directories(${PROJECT_NAME} 
-	PUBLIC ${CMAKE_SOURCE_DIR}/include
-)
-target_link_libraries(${PROJECT_NAME} PUBLIC ${ASIO_LIB})
-set_target_properties (${PROJECT_NAME} PROPERTIES
-    FOLDER /
-)
+add_library(allocators INTERFACE)
+target_sources(allocators INTERFACE ${allocators_HEADERS})
+SOURCE_GROUP_BY_FOLDER(allocators)
+target_include_directories(allocators INTERFACE ${CMAKE_SOURCE_DIR}/include)
+#set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER allocators)
 
 #########################################################################################
 #include all tests
@@ -76,7 +59,7 @@ set_target_properties (${PROJECT_NAME} PROPERTIES
 #createTest( util-math-test test/utilities/math )
 #createTest( util-time-test test/utilities/time )
 #createTest( util-threading-test test/utilities/threading )
-createTest( fastsharedptr ${CMAKE_SOURCE_DIR}/test/fastsharedptr )
+createTest(NAME test_allocators LOCATION tests SOURCE ${CMAKE_SOURCE_DIR}/test/fastsharedptr LIBS allocators catch)
 
 
 
