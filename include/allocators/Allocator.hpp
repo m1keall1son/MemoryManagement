@@ -44,7 +44,7 @@ public:
 	};
 	
 	template<typename...Args>
-	Allocator(Args&&...args) : Policy(std::forward<Args>(args)...) {}
+	Allocator(Args&&...args) : Policy(std::forward<Args>(args)...), Traits(std::forward<Args>(args)...) {}
 	
 	// Copy Constructor
 	template<typename U,
@@ -56,6 +56,19 @@ public:
 	Policy(other),
 	Traits(other)
 	{}
+    
+    template<typename...Args>
+    static void construct(Allocator& alloc, T* ptr, Args&&...args)
+    {
+        Allocator::construct(ptr, std::forward<Args>(args)...);
+    }
+    
+    // Destroy object
+    static void destroy(Allocator& alloc, T* ptr)
+    {
+        Allocator::destroy(ptr);
+    }
+    
 };
 
 // Two allocators are not equal unless a specialization says so
@@ -90,24 +103,6 @@ template<typename T, typename PolicyT, typename TraitsT,
 typename OtherAllocator>
 bool operator!=(Allocator<T, PolicyT, TraitsT> const& left,
 				OtherAllocator const& right)
-{
-	return !(left == right);
-}
-
-// Specialize for the heap policy
-template<typename T, typename TraitsT,
-typename U, typename TraitsU>
-bool operator==(Allocator<T, HeapAllocator<T>, TraitsT> const& left,
-				Allocator<U, HeapAllocator<U>, TraitsU> const& right)
-{
-	return true;
-}
-
-// Also implement inequality
-template<typename T, typename TraitsT,
-typename U, typename TraitsU>
-bool operator!=(Allocator<T, HeapAllocator<T>, TraitsT> const& left,
-				Allocator<U, HeapAllocator<U>, TraitsU> const& right)
 {
 	return !(left == right);
 }

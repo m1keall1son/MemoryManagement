@@ -34,13 +34,13 @@ public:
 		
 	// Construct object
 	template<typename...Args>
-	void construct(type* ptr, Args&&...args) const
+	void construct(type* ptr, Args&&...args)
 	{
 		new(ptr) type(args...);
 	}
 
 	// Destroy object
-	void destroy(type* ptr) const
+	void destroy(type* ptr)
 	{
 		// Call destructor
 		ptr->~type();

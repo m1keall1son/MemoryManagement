@@ -11,46 +11,42 @@
 #include <memory>
 #include "IAllocator.h"
 
-template<size_t Size>
-struct PooledObject {
-    char object[Size];
-    void* next{nullptr};
-};
-
 template<size_t Size, size_t MaxSize>
 class FixedSizeStorage {
 public:
     
-    constexpr static const size_t OBJECT_SIZE = sizeof(PooledObject<Size>);
+    constexpr static const size_t OBJECT_SIZE = ((Size + sizeof(void *)-1) / sizeof(void *)) * sizeof(void *);
     constexpr static const size_t OBJECTS_PER_BLOCK = MaxSize / OBJECT_SIZE;
     constexpr static const size_t BLOCK_SIZE = OBJECTS_PER_BLOCK * OBJECT_SIZE;
     
     FixedSizeStorage() :
-    mObjects(reinterpret_cast<PooledObject<Size>*>(::operator new(BLOCK_SIZE)))
+    mObjects(::operator new(BLOCK_SIZE))
     {
         memset(mObjects, 0, BLOCK_SIZE);
     }
     
     ~FixedSizeStorage() {
-        ::operator delete( reinterpret_cast<void*>(mObjects) );
+        ::operator delete( mObjects );
     }
     
     void* operator[](size_t index) {
         if(index >= OBJECTS_PER_BLOCK) throw std::bad_alloc();
-        return reinterpret_cast<void*>(&mObjects[index].object);
+        char * head = reinterpret_cast<char*>(mObjects);
+        return reinterpret_cast<void*>(head + (index*OBJECT_SIZE));
     }
     
     size_t capacity(){ return OBJECTS_PER_BLOCK; }
-    
+    size_t max_size(){ return BLOCK_SIZE; }
+
 private:
-    
-    PooledObject<Size>* mObjects;
+   void* mObjects;
 };
 
 template<size_t Size, size_t BlockSize>
 class BlockListStorage {
 public:
-    constexpr static const size_t OBJECT_SIZE = sizeof(PooledObject<Size>);
+    
+    constexpr static const size_t OBJECT_SIZE = ((Size + sizeof(void *)-1) / sizeof(void *)) * sizeof(void *);
     constexpr static const size_t OBJECTS_PER_BLOCK = BlockSize/OBJECT_SIZE;
     constexpr static const size_t BLOCK_SIZE = OBJECTS_PER_BLOCK * OBJECT_SIZE;
     
@@ -72,6 +68,7 @@ public:
     }
     
     size_t capacity(){ return mBlocks.size() * OBJECTS_PER_BLOCK; }
+    size_t max_size(){ return mBlocks.size() * BLOCK_SIZE; }
     
 private:
     std::list<FixedSizeStorage<Size,BlockSize>> mBlocks;
@@ -92,8 +89,8 @@ public:
         void* ret;
         if(mFreeStore){
             ret = mFreeStore;
-            auto po = reinterpret_cast<PooledObject<Size>*>(mFreeStore);
-            mFreeStore = po->next;
+            auto next = *reinterpret_cast<void**>(mFreeStore);
+            mFreeStore = next;
         }else{
             ret = mStorage[mLast++];
         }
@@ -101,13 +98,13 @@ public:
     }
     
     void deallocate(void* ptr)override{
-        auto po = reinterpret_cast<PooledObject<Size>*>(ptr);
-        po->next = mFreeStore;
+        *reinterpret_cast<void**>(ptr) = mFreeStore;
         mFreeStore = ptr;
     }
     
     size_t capacity() override { return mStorage.capacity(); }
-    
+    size_t max_size(){ return mStorage.max_size(); }
+
 private:
     void* mFreeStore{nullptr};
     size_t mLast{0};

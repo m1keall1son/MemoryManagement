@@ -27,9 +27,9 @@ unsigned int randInt(unsigned int max) {
     return (unsigned int)floor((mix * (double)max));
 }
 
-TEST_CASE("PoolAllocatorFixed","[allocator]"){
+TEST_CASE("FreeStoreAllocatorFixed","[allocator]"){
     
-    using Alloc = Allocator<Object, FreeStoreAllocator<Object, FixedSizeStorage,1000>, DefaultInitializer<Object>>;
+    using Alloc = Allocator<Object, FreeStoreAllocator<Object, FixedSizeStorage,1000>>;
     
     Alloc alloc;
     
@@ -126,7 +126,7 @@ TEST_CASE("PoolAllocatorFixed","[allocator]"){
 }
 
 
-TEST_CASE("PoolAllocatorDynamic","[allocator]"){
+TEST_CASE("FreeStoreAllocatorDynamic","[allocator]"){
     
     using Alloc = Allocator<Object, FreeStoreAllocator<Object,BlockListStorage,1000>, DefaultInitializer<Object>>;
 
@@ -227,7 +227,7 @@ TEST_CASE("PoolAllocatorDynamic","[allocator]"){
 
 }
 
-TEST_CASE("FastSharedPtr","[allocator]"){
+TEST_CASE("FreeStoreSharedPtr","[allocator]"){
 
     using Alloc = Allocator<Object, FreeStoreAllocator<Object,FixedSizeStorage,1000>, DefaultInitializer<Object>>;
 
@@ -259,6 +259,15 @@ TEST_CASE("FastSharedPtr","[allocator]"){
     REQUIRE(shared1->getCount() == 6);
     shared1.reset();
     REQUIRE(weak.expired());
+    
+}
+
+TEST_CASE("FreeStoreList","[allocator]"){
+    using Alloc = Allocator<Object, FreeStoreAllocator<Object,FixedSizeStorage,1000>, DefaultInitializer<Object>>;
+    auto list = std::list<Object,Alloc>(Alloc());
+    for( int i = 0; i < 100; i++ ){
+        list.emplace_back();
+    }
     
 }
 
