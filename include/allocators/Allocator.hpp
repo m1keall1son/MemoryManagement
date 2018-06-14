@@ -56,19 +56,6 @@ public:
 	Policy(other),
 	Traits(other)
 	{}
-    
-    template<typename...Args>
-    static void construct(Allocator& alloc, T* ptr, Args&&...args)
-    {
-        Allocator::construct(ptr, std::forward<Args>(args)...);
-    }
-    
-    // Destroy object
-    static void destroy(Allocator& alloc, T* ptr)
-    {
-        Allocator::destroy(ptr);
-    }
-    
 };
 
 // Two allocators are not equal unless a specialization says so

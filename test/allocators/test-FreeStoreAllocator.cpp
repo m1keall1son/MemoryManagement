@@ -20,6 +20,7 @@ public:
     void inc(){mCount++;}
 private:
     int mCount{5};
+    float mAnother;
 };
 
 unsigned int randInt(unsigned int max) {
@@ -128,7 +129,7 @@ TEST_CASE("FreeStoreAllocatorFixed","[allocator]"){
 
 TEST_CASE("FreeStoreAllocatorDynamic","[allocator]"){
     
-    using Alloc = Allocator<Object, FreeStoreAllocator<Object,BlockListStorage,1000>, DefaultInitializer<Object>>;
+    using Alloc = Allocator<Object, FreeStoreAllocator<Object,BlockListStorage,1000>>;
 
     Alloc alloc;
     
@@ -229,15 +230,13 @@ TEST_CASE("FreeStoreAllocatorDynamic","[allocator]"){
 
 TEST_CASE("FreeStoreSharedPtr","[allocator]"){
 
-    using Alloc = Allocator<Object, FreeStoreAllocator<Object,FixedSizeStorage,1000>, DefaultInitializer<Object>>;
+    using Alloc = Allocator<Object, FreeStoreAllocator<Object,FixedSizeStorage,1000>>;
 
-    Alloc myAlloc;
-
-    auto shared1 = std::shared_ptr<Object>( new Object, std::default_delete<Object>(), myAlloc );
-    auto shared2 = std::shared_ptr<Object>( new Object, std::default_delete<Object>(), myAlloc );
-    auto shared3 = std::shared_ptr<Object>( new Object, std::default_delete<Object>(), myAlloc );
-    auto shared4 = std::shared_ptr<Object>( new Object, std::default_delete<Object>(), myAlloc );
-    auto shared5 = std::shared_ptr<Object>( new Object, std::default_delete<Object>(), myAlloc );
+    auto shared1 = std::allocate_shared<Object>( Alloc() );
+    auto shared2 = std::allocate_shared<Object>( Alloc() );
+    auto shared3 = std::allocate_shared<Object>( Alloc() );
+    auto shared4 = std::allocate_shared<Object>( Alloc() );
+    auto shared5 = std::shared_ptr<Object>( new Object, std::default_delete<Object>(), Alloc() );
 
     REQUIRE(shared1.get() != shared2.get());
     
@@ -263,11 +262,10 @@ TEST_CASE("FreeStoreSharedPtr","[allocator]"){
 }
 
 TEST_CASE("FreeStoreList","[allocator]"){
-    using Alloc = Allocator<Object, FreeStoreAllocator<Object,FixedSizeStorage,1000>, DefaultInitializer<Object>>;
+    using Alloc = Allocator<Object, FreeStoreAllocator<Object,BlockListStorage,1024>>;
     auto list = std::list<Object,Alloc>(Alloc());
     for( int i = 0; i < 100; i++ ){
         list.emplace_back();
     }
-    
 }
 
