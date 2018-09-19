@@ -11,6 +11,9 @@
 #include <memory>
 #include "IAllocator.h"
 
+struct InBytes {};
+struct InNumObjects {};
+
 template<size_t Size, size_t MaxSize>
 class FixedSizeStorage {
 public:
@@ -94,6 +97,7 @@ public:
         }else{
             ret = mStorage[mLast++];
         }
+        std::cout << "allocating size of: " << Size << std::endl;
         return ret;
     }
     

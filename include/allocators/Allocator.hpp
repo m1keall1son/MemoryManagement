@@ -22,15 +22,15 @@ typedef typename C::size_type       size_type;       \
 typedef typename C::difference_type difference_type; \
 
 template<typename T,
-	typename PolicyT = HeapAllocator<T>,
-	typename TraitsT = DefaultInitializer<T> >
-class Allocator : public PolicyT, public TraitsT
+	typename AllocationPolicy = HeapAllocator<T>,
+	typename InitializationPolicy = DefaultInitializer<T> >
+class Allocator : public AllocationPolicy, public InitializationPolicy
 {
 public:
 	
 	// Template parameters
-	typedef PolicyT Policy;
-	typedef TraitsT Traits;
+	typedef AllocationPolicy Policy;
+    typedef InitializationPolicy Initailization;
 	
 	FORWARD_ALLOCATOR_TRAITS(Policy)
 	
@@ -39,56 +39,56 @@ public:
 	{
 		typedef Allocator<U,
 		typename Policy::template rebind<U>::other,
-		typename Traits::template rebind<U>::other
+		typename Initailization::template rebind<U>::other
 		> other;
 	};
 	
 	template<typename...Args>
-	Allocator(Args&&...args) : Policy(std::forward<Args>(args)...), Traits(std::forward<Args>(args)...) {}
+	Allocator(Args&&...args) : Policy(std::forward<Args>(args)...), Initailization(std::forward<Args>(args)...) {}
 	
 	// Copy Constructor
 	template<typename U,
-	typename PolicyU,
-	typename TraitsU>
+	typename AllocationPolicyU,
+	typename InitializationAllocationPolicyU>
 	Allocator(Allocator<U,
-			  PolicyU,
-			  TraitsU> const& other) :
+			  AllocationPolicyU,
+			  InitializationAllocationPolicyU> const& other) :
 	Policy(other),
-	Traits(other)
+	Initailization(other)
 	{}
 };
 
 // Two allocators are not equal unless a specialization says so
-template<typename T, typename PolicyT, typename TraitsT,
-typename U, typename PolicyU, typename TraitsU>
-bool operator==(Allocator<T, PolicyT, TraitsT> const& left,
-				Allocator<U, PolicyU, TraitsU> const& right)
+template<typename T, typename AllocationPolicy, typename InitializationPolicy,
+typename U, typename AllocationPolicyU, typename InitializationAllocationPolicyU>
+bool operator==(Allocator<T, AllocationPolicy, InitializationPolicy> const& left,
+				Allocator<U, AllocationPolicyU, InitializationAllocationPolicyU> const& right)
 {
 	return false;
 }
 
 // Also implement inequality
-template<typename T, typename PolicyT, typename TraitsT,
-typename U, typename PolicyU, typename TraitsU>
-bool operator!=(Allocator<T, PolicyT, TraitsT> const& left,
-				Allocator<U, PolicyU, TraitsU> const& right)
+template<typename T, typename AllocationPolicy, typename InitializationPolicy,
+typename U, typename AllocationPolicyU, typename InitializationAllocationPolicyU>
+bool operator!=(Allocator<T, AllocationPolicy, InitializationPolicy> const& left,
+				Allocator<U, AllocationPolicyU, InitializationAllocationPolicyU> const& right)
 {
 	return !(left == right);
 }
 
 // Comparing an allocator to anything else should not show equality
-template<typename T, typename PolicyT, typename TraitsT,
+template<typename T, typename AllocationPolicy, typename InitializationPolicy,
 typename OtherAllocator>
-bool operator==(Allocator<T, PolicyT, TraitsT> const& left,
+bool operator==(Allocator<T, AllocationPolicy, InitializationPolicy> const& left,
 				OtherAllocator const& right)
 {
 	return false;
 }
 
 // Also implement inequality
-template<typename T, typename PolicyT, typename TraitsT,
+template<typename T, typename AllocationPolicy, typename InitializationPolicy,
 typename OtherAllocator>
-bool operator!=(Allocator<T, PolicyT, TraitsT> const& left,
+bool operator!=(Allocator<T, AllocationPolicy, InitializationPolicy> const& left,
 				OtherAllocator const& right)
 {
 	return !(left == right);

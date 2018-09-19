@@ -15,7 +15,7 @@
 #include "Heap.hpp"
 #include "FreeStore.hpp"
 
-template<typename T, template<size_t,size_t> typename StorageType, size_t StorageSize>
+template<typename T, template<size_t,size_t> class StorageType, size_t StorageSize>
 class FreeStoreAllocator
 {
 public:
