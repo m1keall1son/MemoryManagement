@@ -28,7 +28,7 @@ message("-- App is set to ${APP_TARGET}.")
 #setup testing
 add_library(catch INTERFACE)
 set(CATCH_DIR ${CMAKE_SOURCE_DIR}/deps/Catch2 CACHE INTERNAL "Path to Catch installation")
-set(CATCH_INCLUDE_DIR ${CATCH_DIR}/single_include CACHE INTERNAL "Path to include folder for Catch")
+set(CATCH_INCLUDE_DIR ${CATCH_DIR}/single_include/catch2 CACHE INTERNAL "Path to include folder for Catch")
 target_include_directories(catch INTERFACE ${CATCH_INCLUDE_DIR})
 #include automatic test discovery for ctest
 include(${CATCH_DIR}/contrib/Catch.cmake)

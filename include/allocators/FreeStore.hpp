@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cstring>
 #include <stdint.h>
 #include <memory>
 #include "IAllocator.h"
@@ -25,7 +26,7 @@ public:
     FixedSizeStorage() :
     mObjects(::operator new(BLOCK_SIZE))
     {
-        memset(mObjects, 0, BLOCK_SIZE);
+        std::memset(mObjects, 0, BLOCK_SIZE);
     }
     
     ~FixedSizeStorage() {
